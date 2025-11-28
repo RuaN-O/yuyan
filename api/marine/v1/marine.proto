@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package marine.v1;
+
+option go_package = "yuyan/api/marine/v1;v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// 海洋生物服务
+service MarineService {
+  
+  // ========== History 表相关 API ==========
+  
+  // 获取当前用户的所有历史记录
+  rpc GetHistoryByUser (google.protobuf.Empty) returns (GetHistoryByUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/marine/history"
+    };
+  }
+  
+  // 根据历史记录ID获取单条记录
+  rpc GetHistoryByHistoryId (GetHistoryByHistoryIdRequest) returns (GetHistoryByHistoryIdResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/marine/history/{historyid}"
+    };
+  }
+  
+  // 添加一条新的识别历史记录
+  rpc AddHistory (AddHistoryRequest) returns (AddHistoryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/marine/history"
+      body: "*"
+    };
+  }
+
+  // ========== Marine Creature 表相关 API ==========
+
+  // 根据生物ID获取生物信息
+  rpc GetCreatureByCreatureId (GetCreatureByCreatureIdRequest) returns (GetCreatureByCreatureIdResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/marine/creature/{creatureid}"
+    };
+  }
+
+  // 根据生物ID删除一条生物记录
+  rpc DeleteByCreatureId (DeleteByCreatureIdRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/marine/creature/{creatureid}"
+    };
+  }
+
+  // 更新生物信息
+  rpc UpdateCreature (UpdateCreatureRequest) returns (UpdateCreatureResponse) {
+    option (google.api.http) = {
+      // 修改：使用顶层字段 {id}，确保兼容性
+      put: "/api/v1/marine/creature/{id}"
+      body: "*"
+    };
+  }
+
+  // 添加一条新的生物记录
+  rpc AddCreature (AddCreatureRequest) returns (AddCreatureResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/marine/creature"
+      body: "*"
+    };
+  }
+}
+
+// ========== History 相关消息定义 ==========
+
+// ... (History 相关消息保持不变) ...
+
+// ========== Marine Creature 相关消息定义 ==========
+
+// 根据ID获取生物的请求
+message GetCreatureByCreatureIdRequest {
+  uint32 creatureid = 1;
+}
+
+// 根据ID获取生物的响应
+message GetCreatureByCreatureIdResponse {
+  MarineCreature creature = 1;
+}
+
+// 根据ID删除生物的请求
+message DeleteByCreatureIdRequest {
+  uint32 creatureid = 1;
+}
+
+// 更新生物的请求
+message UpdateCreatureRequest {
+  // 修改：将 ID 提升为顶层字段
+  uint32 id = 1;
+  // creature 对象现在只需要包含需要更新的字段，ID 可以不包含在内
+  MarineCreature creature = 2;
+}
+
+// 更新生物的响应
+message UpdateCreatureResponse {
+  MarineCreature creature = 1; // 返回更新后的完整生物信息
+}
+
+// 添加生物的请求
+message AddCreatureRequest {
+  string name = 1;
+  string description = 2;
+  string image_url = 3;
+}
+
+// 添加生物的响应
+message AddCreatureResponse {
+  uint32 creature_id = 1; // 返回新创建的生物ID
+}
+
+
+// ========== 数据模型定义 ==========
+
+// 历史记录信息
+message History {
+  uint64 history_id = 1;
+  uint64 user_id = 2;
+  string file_name = 3;
+  uint32 creature_id = 4;
+  string result_text = 5;
+  int64 identify_time = 6;
+}
+
+// 海洋生物信息
+message MarineCreature {
+  uint32 creature_id = 1;
+  string name = 2;
+  string description = 3;
+  string image_url = 4;
+  int64 create_time = 5;
+}
+
+// ... (其他 History 相关消息定义) ...
+message GetHistoryByUserResponse {
+  repeated History histories = 1;
+}
+
+message GetHistoryByHistoryIdRequest {
+  uint64 historyid = 1;
+}
+
+message GetHistoryByHistoryIdResponse {
+  History history = 1;
+}
+
+message AddHistoryRequest {
+  string file_name = 1;
+  uint32 creature_id = 2;
+  string result_text = 3;
+}
+
+message AddHistoryResponse {
+  uint64 history_id = 1;
+}

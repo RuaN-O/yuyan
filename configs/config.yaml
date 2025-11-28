@@ -1,0 +1,15 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    source: root:123456@tcp(127.0.0.1:3306)/yuyan?parseTime=True&loc=Local
+jwt:
+  secret: yuyansecret
+  expire: 86401s
+  refresh: 86401s
